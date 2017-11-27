@@ -1,0 +1,113 @@
+<!doctype html>
+<html class="no-js" lang="sv">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>HTML Boilerplate</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="http://cdn.date-fns.org/v1.9.0/date_fns.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+
+<body>
+  <div class="bar">
+    <div class="time"></div>
+  </div>
+  <div class="time">
+    <span id="hour" class="hour">7</span>
+    <span id="minute" class="minute"></span>
+    <span id="second" class="second"></span>
+  </div>
+  <script>
+    var targetTime = dateFns.parse('2017-11-27T00:00:00');
+    var distanceToTarget = dateFns.differenceInSeconds(targetTime, new Date());
+    var hour;
+    var minute;
+    var second;
+
+    var hourEl = document.getElementById("hour");
+    var minuteEl = document.getElementById("minute");
+    var secondEl = document.getElementById("second");
+    hourEl.addEventListener("click", function() { startAnimatePulse("hour"); }, null);
+
+    function stopAnimation(el) {
+      el.addEventListener("animationend", function(e) {
+        console.log(e);
+        if (e.animationName = 'pulse') {
+          e.target.classList.remove("animate-pulse");
+        }
+      }, false);
+    }
+    stopAnimation(hourEl);
+    stopAnimation(minuteEl);
+    stopAnimation(secondEl);
+    
+
+    function startAnimatePulse(containerId) {
+      var element = document.getElementById(containerId);
+      element.classList.add("animate-pulse");
+    }
+
+    function updateTime(containerId, content) {
+      var element = document.getElementById(containerId);
+      var oldContent = element.textContent;
+
+      if (content.toString() !== oldContent) {
+        startAnimatePulse(containerId);
+        window.setTimeout(function() {
+          element.textContent = content;
+        }, 196);
+      }
+    }
+
+    function render(deltaT) {
+      var dateNow = new Date();
+      var newHour = dateFns.differenceInHours(targetTime, dateNow);
+      var newMinute = dateFns.differenceInMinutes(targetTime, dateNow);
+      var newSecond = dateFns.differenceInSeconds(targetTime, dateNow);
+
+      var diffHour = newHour;
+      var diffMinute = newMinute - newHour * 60;
+      var diffSecond = newSecond - newMinute * 60;
+
+      if (diffSecond.toString().length == 1) {
+        diffSecond = "0" + diffSecond;
+      }
+
+      if (diffMinute.toString().length == 1) {
+        diffMinute = "0" + diffMinute;
+      }
+
+      updateTime("hour", diffHour);
+      updateTime("minute", diffMinute);
+      updateTime("second", diffSecond);
+
+      console.log("test", deltaT);
+    }
+
+    function animLoop(render) {
+      var lastFrame = performance.now();
+
+      function loop(now) {
+        requestAnimationFrame(loop);
+        var deltaT = now - lastFrame;
+        if (deltaT > 1000) {
+          console.log("render");
+          render(deltaT);
+          lastFrame = now;
+        }
+      }
+
+      loop(lastFrame);
+    }
+
+    animLoop(render);
+
+
+  </script>
+</body>
+
+</html>
