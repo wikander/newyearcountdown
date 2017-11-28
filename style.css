@@ -51,12 +51,24 @@ body {
   }
 }
 
+.scale-inf {
+  animation-duration: 2s;
+  animation-name: scale-inf;
+  animation-timing-function: linear;
+}
+
+@keyframes scale-inf {
+  to {
+    transform: scale(50, 50);
+  }
+}
+
 .bar {
   position: fixed;
   left: 0;
   right: 0;
   top: 0;
-  height: 1vw;
+  height: 3vw;
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -64,6 +76,7 @@ body {
 }
 
 .bar .time {
-  background: red;
-  width: 300px;
+  background: #02779E;
+  width: 0;
+  transition: width 500ms linear;
 }

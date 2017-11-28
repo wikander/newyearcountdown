@@ -14,7 +14,7 @@
 
 <body>
   <div class="bar">
-    <div class="time"></div>
+    <div class="time" id="time-bar"></div>
   </div>
   <div class="time">
     <span id="hour" class="hour">7</span>
@@ -22,16 +22,25 @@
     <span id="second" class="second"></span>
   </div>
   <script>
-    var targetTime = dateFns.parse('2017-11-27T00:00:00');
+    var targetTime = dateFns.parse('2017-11-27T22:33:00');
     var distanceToTarget = dateFns.differenceInSeconds(targetTime, new Date());
     var hour;
     var minute;
     var second;
 
+    var timeBarEl = document.getElementById("time-bar");
+
     var hourEl = document.getElementById("hour");
     var minuteEl = document.getElementById("minute");
     var secondEl = document.getElementById("second");
     hourEl.addEventListener("click", function() { startAnimatePulse("hour"); }, null);
+
+
+    function renderTimeBar(secondUntilTarget) {
+      var windowWidth = window.innerWidth;
+      var secondWidth = windowWidth / distanceToTarget;
+      timeBarEl.style.width =  secondWidth * (distanceToTarget - secondUntilTarget) + 'px';
+    }
 
     function stopAnimation(el) {
       el.addEventListener("animationend", function(e) {
@@ -51,15 +60,37 @@
       element.classList.add("animate-pulse");
     }
 
+    function removeTimeUnit(containerId) {
+      var element = document.getElementById(containerId);
+      if (element) {
+        element.remove();
+      }
+    }
+
+    function scaleInf(containerId) {
+      var element = document.getElementById(containerId);
+      element.classList.add("scale-inf");
+      window.setTimeout(function() {
+        removeTimeUnit(containerId);
+      }, 2000);
+    }
+
     function updateTime(containerId, content) {
       var element = document.getElementById(containerId);
-      var oldContent = element.textContent;
 
-      if (content.toString() !== oldContent) {
-        startAnimatePulse(containerId);
-        window.setTimeout(function() {
-          element.textContent = content;
-        }, 196);
+      if (element) {
+        if (content < 0) {
+          content = 0;
+        }
+
+        var oldContent = element.textContent;
+
+        if (content.toString() !== oldContent) {
+          startAnimatePulse(containerId);
+          window.setTimeout(function() {
+            element.textContent = content;
+          }, 196);
+        }
       }
     }
 
@@ -73,17 +104,31 @@
       var diffMinute = newMinute - newHour * 60;
       var diffSecond = newSecond - newMinute * 60;
 
-      if (diffSecond.toString().length == 1) {
-        diffSecond = "0" + diffSecond;
-      }
+      // if (diffSecond.toString().length == 1) {
+      //   diffSecond = "0" + diffSecond;
+      // }
 
-      if (diffMinute.toString().length == 1) {
-        diffMinute = "0" + diffMinute;
-      }
+      // if (diffMinute.toString().length == 1) {
+      //   diffMinute = "0" + diffMinute;
+      // }
 
       updateTime("hour", diffHour);
       updateTime("minute", diffMinute);
       updateTime("second", diffSecond);
+
+      if (diffHour <= 0) {
+        removeTimeUnit("hour");
+      }
+
+      if (diffMinute <= 0) {
+        removeTimeUnit("minute");
+      }
+
+      if (diffSecond <= 0) {
+        scaleInf("second");
+      }
+
+      renderTimeBar(newSecond);
 
       console.log("test", deltaT);
     }
